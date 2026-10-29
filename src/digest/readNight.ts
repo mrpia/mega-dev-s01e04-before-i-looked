@@ -46,11 +46,15 @@ export const readNight: ReadNight = (runsDir, night) => {
   if (text === null) return null;
 
   let badLines = 0;
+  const statusCounts = { ok: 0, retry: 0, fail: 0 };
   const lines: LogLine[] = [];
   for (const raw of text.split('\n')) {
     if (raw.trim() === '') continue;
     const line = parseLine(raw);
-    if (line) lines.push(line);
+    if (line) {
+      lines.push(line);
+      statusCounts[line.status]++;
+    }
     else badLines++;
   }
 
@@ -82,5 +86,5 @@ export const readNight: ReadNight = (runsDir, night) => {
   }
 
   const rows = [...byJob.values()].sort((a, b) => (a.job < b.job ? -1 : a.job > b.job ? 1 : 0));
-  return { night, rows, badLines } satisfies Night;
+  return { night, rows, badLines, statusCounts } satisfies Night;
 };

@@ -10,15 +10,12 @@ export type Status = {
   nights: NightSummary[];
 };
 
-// Per job, by the status of its most recent line (the same status the digest page shows per row).
-// ok + retry + fail = number of jobs that ran. `badLines` = lines the reader could not use.
+// Per line: ok + retry + fail = the night's valid lines. `badLines` = lines the reader could not use.
 export type NightSummary = { night: string; ok: number; retry: number; fail: number; badLines: number };
 
 export function summarizeNight(runsDir: string, night: string): NightSummary {
   const n = readNight(runsDir, night);
-  const s: NightSummary = { night, ok: 0, retry: 0, fail: 0, badLines: n?.badLines ?? 0 };
-  for (const row of n?.rows ?? []) s[row.lastStatus]++;
-  return s;
+  return { night, ...(n?.statusCounts ?? { ok: 0, retry: 0, fail: 0 }), badLines: n?.badLines ?? 0 };
 }
 
 // Nights on disk = runs/<YYYY-MM-DD>.jsonl, newest first.
