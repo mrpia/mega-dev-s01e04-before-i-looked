@@ -1,0 +1,58 @@
+# Preview for review (plan.md § 3, § 4; ADR 0003).
+# Runs rig, saves one page as a single HTML file and deploys it to GitHub Pages as an artifact,
+# so the preview is never committed. The banner shows the repo variable LANE_MARKER; delete the
+# variable (or leave it empty) and run again to upload the same page "no marker set" over the link.
+name: preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      night:
+        description: Night to preview (runs/<night>.jsonl)
+        default: "2026-10-28"
+        required: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.15.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Save the page
+        env:
+          LANE_MARKER: ${{ vars.LANE_MARKER }}
+          NIGHT: ${{ inputs.night }}
+          PORT: 8787
+        run: |
+          pnpm start > rig.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS "http://localhost:$PORT/health" > /dev/null && break; sleep 1; done
+          mkdir -p _site
+          curl -fsS "http://localhost:$PORT/digest/$NIGHT" -o _site/index.html
+          echo "banner: $(grep -o '<span class="marker">[^<]*</span>' _site/index.html)"
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v5
