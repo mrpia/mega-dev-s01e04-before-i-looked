@@ -19,7 +19,7 @@ describe('status board', () => {
     expect(html).toMatch(/<a href="\/digest\/2026-10-28">2026-10-28<\/a> · 10 ok · 4 retry · 1 fail/);
     expect(html).toContain('1 unreadable');
     // 2026-10-27: 7 lines, all ok.
-    expect(html).toMatch(/<a href="\/digest\/2026-10-27">2026-10-27<\/a> · 4 ok · 0 retry · 0 fail/);
+    expect(html).toMatch(/<a href="\/digest\/2026-10-27">2026-10-27<\/a> · 7 ok · 0 retry · 0 fail/);
   });
 
   it('health answers with the lane id', async () => {
