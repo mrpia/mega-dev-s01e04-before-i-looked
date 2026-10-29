@@ -13,6 +13,10 @@ function tempRuns(files: Record<string, string>): string {
 describe('readNight on runs/2026-10-28.jsonl', () => {
   const night = readNight('runs', '2026-10-28');
 
+  it('counts valid lines by status: 10 ok, 4 retry, 1 fail', () => {
+    expect(night?.statusCounts).toEqual({ ok: 10, retry: 4, fail: 1 });
+  });
+
   it('has 5 jobs, sorted by job, and 1 bad line', () => {
     expect(night).not.toBeNull();
     expect(night?.badLines).toBe(1);
@@ -72,6 +76,7 @@ describe('readNight edge cases', () => {
       night: '2026-10-02',
       rows: [],
       badLines: 0,
+      statusCounts: { ok: 0, retry: 0, fail: 0 },
     });
   });
 

@@ -45,6 +45,8 @@ export type Night = {
    * string). Counted, never thrown. Blank lines are skipped and not counted.
    */
   badLines: number;
+  /** Valid lines by status, one count per line (not per job). Bad lines are excluded, see `badLines`. */
+  statusCounts: { ok: number; retry: number; fail: number };
 };
 
 /**
